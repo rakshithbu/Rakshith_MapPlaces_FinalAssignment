@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Maps Nearby Places</string>
+    <string name="title_activity_maps">Map</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string-array name="images">
+        <item>Living Room</item>
+        <item>Master Bedroom</item>
+        <item>Children Bedroom</item>
+        <item>Kitchen1</item>
+        <item>Kitchen2</item>
+        <item>Gallery</item>
+    </string-array>
+</resources>
+
