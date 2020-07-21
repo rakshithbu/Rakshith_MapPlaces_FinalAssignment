@@ -66,7 +66,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private DatabaseHelper db;
     ArrayList<Marker> markerArrayList = new ArrayList<>();
     boolean isUpdateClicked = false;
-
+   String previousLocation = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -262,8 +262,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 final ArrayList<String> stringAddress = new ArrayList<>();
              ArrayList<Favourite> favourites=    db.getAllContacts();
                 for(int i=0; i<favourites.size();i++){
-                    //List<Address> addressList = null;
-                    stringAddress.add(favourites.get(i).id +")  " + favourites.get(i).locationAddress);
+                    stringAddress.add(favourites.get(i).locationAddress);
                 }
                 final MapsActivity m  = this;
                 final ArrayAdapter<Object> modeAdapter = new ArrayAdapter<Object>(this, android.R.layout.simple_list_item_1, android.R.id.text1, stringAddress.toArray());
@@ -273,7 +272,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 dialog.show();
                 final SwipeDetector swipeDetector = new SwipeDetector(modeList);
                 modeList.setOnTouchListener(swipeDetector);
-                //modeList.ond
 
 
                 modeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -285,14 +283,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             System.out.println("swipeDetector.getAction().toString()===>"+swipeDetector.getAction().toString());
                             if(swipeDetector.getAction().toString().equalsIgnoreCase("RL")){
                                 isUpdateClicked = true;
+                                mMap.clear();
+                                TextView selected = (TextView) view;
+
+                                Favourite fav =      db.getContact(selected.getText().toString());
+
+                                previousLocation = selected.getText().toString();
+
+                                dialog.cancel();
+                                MarkerOptions markerOptions = new MarkerOptions();
+                                markerOptions.position(new LatLng(fav.getLatitude(),fav.getLongitude()));
+                                markerOptions.title(previousLocation);
+                                mMap.addMarker(markerOptions);
+
 
                             }else if(swipeDetector.getAction().toString().equalsIgnoreCase("LR")){
                                 Favourite favourite = new Favourite();
                                 TextView selected = (TextView) view;
 
-                              int pos =  Integer.parseInt(selected.getText().toString().split("\\)")[0]);
-                               System.out.println();
-                              favourite.setId(pos);
+                                favourite.setLocationAddress(selected.getText().toString());
                                 view.setBackgroundColor(Color.RED);
 
 
@@ -301,15 +310,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 View myView = findViewById(R.id.B_to);
                                 dialog.cancel();
                                 myView.performClick();
-                                /*ArrayList<String> stringAddress = new ArrayList<>();
-                                ArrayList<Favourite> favourites=    db.getAllContacts();
-                                for(int i=0; i<favourites.size();i++){
-                                    //List<Address> addressList = null;
-                                    stringAddress.add(favourites.get(i).id +")  " + favourites.get(i).locationAddress);
-                                }
-                                 ArrayAdapter<Object> mmm = new ArrayAdapter<Object>(m, android.R.layout.simple_list_item_1, android.R.id.text1, (String[]) stringAddress.toArray());
-                                modeList.setAdapter(mmm);
-                                builder.setView(modeList);*/
 
 
 
@@ -326,8 +326,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             TextView selected = (TextView) view;
                             isUpdateClicked = true;
                             mMap.clear();
-                            int pos =  Integer.parseInt(selected.getText().toString().split("\\)")[0]);
-                            Favourite fav  =      db.getContact(pos);
+                            Favourite fav  =      db.getContact(selected.getText().toString());
 
                             Object dataTransfer[]  = new Object[3];
                             end_latitude = fav.getLatitude();
@@ -556,26 +555,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 /*if(marker.getTitle().equalsIgnoreCase("Current Position")){
 
                 }*/
-                new AlertDialog.Builder(this)
-                        .setTitle("Add to favourites")
-                        .setMessage("Are you sure you want to add this location to your favourites?")
+                if(!isUpdateClicked){
+                    new AlertDialog.Builder(this)
+                            .setTitle("Add to favourites")
+                            .setMessage("Are you sure you want to "+marker.getTitle()+"add this location to your favourites?")
 
-                        // Specifying a listener allows you to take an action before dismissing the dialog.
-                        // The dialog is automatically dismissed when a dialog button is clicked.
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                Favourite favourite = new Favourite();
-                                favourite.setLatitude(marker.getPosition().latitude);
-                                favourite.setLongitude(marker.getPosition().longitude);
-                                favourite.setLocationAddress(marker.getTitle());
-                            db.insertContact(favourite);
-                            }
-                        })
+                            // Specifying a listener allows you to take an action before dismissing the dialog.
+                            // The dialog is automatically dismissed when a dialog button is clicked.
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Favourite favourite = new Favourite();
+                                    favourite.setLatitude(marker.getPosition().latitude);
+                                    favourite.setLongitude(marker.getPosition().longitude);
+                                    favourite.setLocationAddress(marker.getTitle());
 
-                        // A null listener allows the button to dismiss the dialog and take no further action.
-                        .setNegativeButton(android.R.string.no, null)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
+                                    if(previousLocation == null|| !previousLocation.isEmpty()){
+                                        db.updateContact(favourite,previousLocation);
+                                        previousLocation = null;
+
+                                        Toast.makeText(MapsActivity.this, "Location has been updated succesfully.", Toast.LENGTH_LONG).show();
+                                    }else{
+                                        db.insertContact(favourite);
+                                    }
+
+                                }
+                            })
+
+                            // A null listener allows the button to dismiss the dialog and take no further action.
+                            .setNegativeButton(android.R.string.no, null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
+
                 return false;
             }
 
@@ -591,11 +602,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onMarkerDragEnd(Marker marker) {
+             marker.hideInfoWindow();
+                Geocoder geocoder =
+                        new Geocoder(MapsActivity.this);
+
+                List<Address> list;
+                try {
+                    list = geocoder.getFromLocation(marker.getPosition().latitude,
+                            marker.getPosition().longitude, 1);
+                } catch (IOException e) {
+                    return;
+                }
+
+                marker.setTitle(list.get(0).getPremises() +" "+list.get(0).getLocality()+""+ list.get(0).getAdminArea()+""+list.get(0).getFeatureName()+" " +list.get(0).getSubLocality() +" "+list.get(0).getCountryName());
                 end_latitude = marker.getPosition().latitude;
                 end_longitude =  marker.getPosition().longitude;
 
                 Log.d("end_lat",""+end_latitude);
                 Log.d("end_lng",""+end_longitude);
+
+                isUpdateClicked = false;
+
+
+
             }
 
 

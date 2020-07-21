@@ -52,13 +52,14 @@ public class GetDirectionsData extends AsyncTask<Object,String,String> {
     {
 
         int count = directionsList.length;
+        System.out.println(count+"==>count");
         for(int i = 0;i<count;i++)
         {
             PolylineOptions options = new PolylineOptions();
             options.color(Color.RED);
             options.width(10);
+            System.out.println(directionsList[i] +"===>directionsList[i]");
             options.addAll(PolyUtil.decode(directionsList[i]));
-
             mMap.addPolyline(options);
         }
     }

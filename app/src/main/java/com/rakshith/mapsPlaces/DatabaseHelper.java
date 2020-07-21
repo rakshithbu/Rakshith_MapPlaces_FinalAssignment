@@ -60,15 +60,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    public Favourite getContact(long id) {
+    public Favourite getContact(String location) {
         // get readable database as we are not inserting anything
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(Favourite.TABLE_NAME,
                 new String[]{Favourite.COLUMN_ID, Favourite.COLUMN_LATITUDE,
                         Favourite.COLUMN_LONGITUDE, Favourite.COLUMN_ADDRESS},
-                Favourite.COLUMN_ID + "=?",
-                new String[]{String.valueOf(id)}, null, null, null, null);
+                Favourite.COLUMN_ADDRESS + "=?",
+                new String[]{location}, null, null, null, null);
 
         if (cursor != null)
             cursor.moveToFirst();
@@ -121,7 +121,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 
-    public int updateContact(Favourite contact) {
+    public int updateContact(Favourite contact,String previousLocation) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -131,13 +131,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         System.out.println("columnid ====>"+contact.getId());
         // updating row
-        return db.update(Favourite.TABLE_NAME, values, Favourite.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(contact.getId())});
+        return db.update(Favourite.TABLE_NAME, values, Favourite.COLUMN_ADDRESS + " = ?",
+                new String[]{previousLocation});
     }
 
     public void deleteContact(Favourite note) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(Favourite.TABLE_NAME, Favourite.COLUMN_ID + " = ?",
+        db.delete(Favourite.TABLE_NAME, Favourite.COLUMN_ADDRESS + " = ?",
                 new String[]{String.valueOf(note.getId())});
         db.close();
     }
