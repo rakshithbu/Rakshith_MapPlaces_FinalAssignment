@@ -31,7 +31,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Upgrading database
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + Favourite.TABLE_NAME);
 
         // Create tables again
@@ -39,12 +38,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public long insertContact(Favourite contact) {
-        // get writable database as we want to write data
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        // `id` and `timestamp` will be inserted automatically.
-        // no need to add them
         values.put(Favourite.COLUMN_LATITUDE, contact.getLatitude());
         values.put(Favourite.COLUMN_LONGITUDE, contact.getLongitude());
         values.put(Favourite.COLUMN_ADDRESS,contact.getLocationAddress());
@@ -53,10 +49,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // insert row
         long id = db.insert(Favourite.TABLE_NAME, null, values);
 
-        // close db connection
         db.close();
 
-        // return newly inserted row id
         return id;
     }
 
@@ -89,9 +83,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public ArrayList<Favourite> getAllContacts() {
         ArrayList<Favourite> contacts = new ArrayList<>();
 
-        // Select All Query
-        /*String selectQuery = "SELECT  * FROM " + Favourite.TABLE_NAME + " ORDER BY " +
-                Favourite.COLUMN_ID + " DESC";*/
 
         String selectQuery = "SELECT  * FROM " + Favourite.TABLE_NAME ;
 
@@ -110,10 +101,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
 
-        // close db connection
         db.close();
 
-        // return notes list
         return contacts;
     }
 

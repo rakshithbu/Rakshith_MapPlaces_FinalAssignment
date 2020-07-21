@@ -550,14 +550,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 } else {
 
-                    // Permission denied, Disable the functionality that depends on this permission.
                     Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
 
-            // other 'case' lines to check for other permissions this app might request.
-            // You can add here other case statements according to your requirement.
         }
     }
 
@@ -573,8 +570,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .setTitle("Add to favourites")
                             .setMessage("Are you sure you want to "+marker.getTitle()+"add this location to your favourites?")
 
-                            // Specifying a listener allows you to take an action before dismissing the dialog.
-                            // The dialog is automatically dismissed when a dialog button is clicked.
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     Favourite favourite = new Favourite();
@@ -596,7 +591,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 }
                             })
 
-                            // A null listener allows the button to dismiss the dialog and take no further action.
                             .setNegativeButton(android.R.string.no, null)
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
@@ -640,14 +634,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-            }
-
-
-            public void onMapLongClick(LatLng point) {
-                mMap.addMarker(new MarkerOptions()
-                        .position(point)
-                        .title("You are here")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
             }
         }
 
