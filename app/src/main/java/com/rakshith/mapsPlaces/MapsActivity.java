@@ -254,26 +254,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             case R.id.B_to:
 
-               /* dataTransfer = new Object[3];
-                url = getDirectionsUrl();
-                GetDirectionsData getDirectionsData = new GetDirectionsData();
-                dataTransfer[0] = mMap;
-                dataTransfer[1] = url;
-                dataTransfer[2] = new LatLng(end_latitude, end_longitude);
-                getDirectionsData.execute(dataTransfer);
-*/
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Select Favourite Location");
                 builder.setCancelable(true);
 
                 final ListView modeList = new ListView(this);
-                ArrayList<String> stringAddress = new ArrayList<>();
+                final ArrayList<String> stringAddress = new ArrayList<>();
              ArrayList<Favourite> favourites=    db.getAllContacts();
                 for(int i=0; i<favourites.size();i++){
                     //List<Address> addressList = null;
                     stringAddress.add(favourites.get(i).id +")  " + favourites.get(i).locationAddress);
                 }
+                final MapsActivity m  = this;
                 final ArrayAdapter<Object> modeAdapter = new ArrayAdapter<Object>(this, android.R.layout.simple_list_item_1, android.R.id.text1, stringAddress.toArray());
                 modeList.setAdapter(modeAdapter);
                 builder.setView(modeList);
@@ -303,11 +295,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                               favourite.setId(pos);
                                 view.setBackgroundColor(Color.RED);
 
+
+
                                 db.deleteContact(favourite);
+                                View myView = findViewById(R.id.B_to);
+                                dialog.cancel();
+                                myView.performClick();
+                                /*ArrayList<String> stringAddress = new ArrayList<>();
+                                ArrayList<Favourite> favourites=    db.getAllContacts();
+                                for(int i=0; i<favourites.size();i++){
+                                    //List<Address> addressList = null;
+                                    stringAddress.add(favourites.get(i).id +")  " + favourites.get(i).locationAddress);
+                                }
+                                 ArrayAdapter<Object> mmm = new ArrayAdapter<Object>(m, android.R.layout.simple_list_item_1, android.R.id.text1, (String[]) stringAddress.toArray());
+                                modeList.setAdapter(mmm);
+                                builder.setView(modeList);*/
+
+
 
                                 Toast.makeText(MapsActivity.this,"Your Favourite Location is deleted", Toast.LENGTH_LONG).show();
                             }
+                            modeList.invalidateViews();
                             modeAdapter.notifyDataSetChanged();
+
                             System.out.println(swipeDetector.getAction().toString()+"===>");
                             System.out.println("swipe detected");
 
@@ -323,10 +333,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             end_latitude = fav.getLatitude();
                             end_longitude = fav.getLongitude();
                             String url = getDirectionsUrl();
-                            System.out.println("startLatitude===>"+latitude);
-                            System.out.println("startLongitude===>"+longitude);
-                            System.out.println("end_latitude===>"+end_latitude);
-                            System.out.println("end_longitude=====>"+end_longitude);
                             System.out.println(url);
 
                             GetDirectionsData getDirectionsData = new GetDirectionsData();
@@ -547,9 +553,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public boolean onMarkerClick(final Marker marker) {
                 marker.setDraggable(true);
-                if(marker.getTitle().equalsIgnoreCase("Current Position")){
+                /*if(marker.getTitle().equalsIgnoreCase("Current Position")){
 
-                }
+                }*/
                 new AlertDialog.Builder(this)
                         .setTitle("Add to favourites")
                         .setMessage("Are you sure you want to add this location to your favourites?")
