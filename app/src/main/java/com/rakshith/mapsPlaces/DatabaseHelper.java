@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(Favourite.COLUMN_LONGITUDE, contact.getLongitude());
         values.put(Favourite.COLUMN_ADDRESS,contact.getLocationAddress());
 
-        System.out.println();
+        System.out.println("insert into contact===>"+contact.toString());
         // insert row
         long id = db.insert(Favourite.TABLE_NAME, null, values);
 
@@ -130,6 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(Favourite.COLUMN_ADDRESS,contact.getLocationAddress());
 
         System.out.println("columnid ====>"+contact.getId());
+
         // updating row
         return db.update(Favourite.TABLE_NAME, values, Favourite.COLUMN_ADDRESS + " = ?",
                 new String[]{previousLocation});
@@ -138,7 +139,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void deleteContact(Favourite note) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(Favourite.TABLE_NAME, Favourite.COLUMN_ADDRESS + " = ?",
-                new String[]{String.valueOf(note.getId())});
+                new String[]{note.getLocationAddress()});
         db.close();
     }
 }

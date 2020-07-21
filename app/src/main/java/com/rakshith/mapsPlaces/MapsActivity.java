@@ -93,10 +93,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-       /* setContentView(R.layout.favourite_list);
-        ListView listView = (ListView) findViewById(R.id.listView);
-        listView.setAdapter(new CustomAdapter(this));
-*/
     }
 
     private boolean CheckGooglePlayServices() {
@@ -136,6 +132,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                GoogleMap.OnMapLongClickListener() {
                                                    @Override
                                                    public void onMapLongClick (LatLng latLng){
+                                                       mMap.clear();
+                                                       isUpdateClicked = false;
                                                        Geocoder geocoder =
                                                                new Geocoder(MapsActivity.this);
                                                        List<Address> list;
@@ -151,8 +149,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                            markerArrayList.get(i).remove();
                                                     }
                                                     markerArrayList.clear();
+
                                                        MarkerOptions options = new MarkerOptions()
-                                                               .title(address.getLocality())
+                                                               .title(list.get(0).getPremises() +
+                                                                       " "+list.get(0).getLocality()+" "+ list.get(0).getAdminArea()+
+                                                                       " "+list.get(0).getFeatureName()+" " +list.get(0).getSubLocality()
+                                                                       +" "+list.get(0).getCountryName())
                                                                .position(new LatLng(latLng.latitude,
                                                                        latLng.longitude));
 
@@ -177,7 +179,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void onClick(View v)
     {
-        isUpdateClicked = false;
+
         Object dataTransfer[] = new Object[2];
         Geocoder geocoder = new Geocoder(this);
         GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(geocoder);
@@ -185,6 +187,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         switch(v.getId()) {
             case R.id.B_search: {
+                mMap.clear();
+                isUpdateClicked = false;
                 EditText tf_location = (EditText) findViewById(R.id.TF_location);
                 String location = tf_location.getText().toString();
                 List<Address> addressList = null;
@@ -205,7 +209,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             Address myAddress = addressList.get(i);
                             LatLng latLng = new LatLng(myAddress.getLatitude(), myAddress.getLongitude());
                             markerOptions.position(latLng);
+                            markerOptions.title(myAddress.getPremises() +
+                                    " "+myAddress.getLocality()+" "+ myAddress.getAdminArea()+
+                                    " "+myAddress.getFeatureName()+" " +myAddress.getSubLocality()
+                                    +" "+myAddress.getCountryName());
                              mMap.addMarker(markerOptions);
+
 
                             mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 
@@ -217,6 +226,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             break;
             case R.id.B_hospital:
                 mMap.clear();
+                isUpdateClicked = false;
                 String hospital = "hospital";
                 String url = getUrl(latitude, longitude, hospital);
 
@@ -229,6 +239,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             case R.id.B_restaurant:
                 mMap.clear();
+                isUpdateClicked = false;
                 dataTransfer = new Object[2];
                 String restaurant = "restaurant";
                 url = getUrl(latitude, longitude, restaurant);
@@ -241,6 +252,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 break;
             case R.id.B_school:
                 mMap.clear();
+                isUpdateClicked = false;
                 String school = "school";
                 dataTransfer = new Object[2];
                 url = getUrl(latitude, longitude, school);
@@ -298,6 +310,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
                             }else if(swipeDetector.getAction().toString().equalsIgnoreCase("LR")){
+                                isUpdateClicked = false;
                                 Favourite favourite = new Favourite();
                                 TextView selected = (TextView) view;
 
@@ -569,13 +582,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     favourite.setLongitude(marker.getPosition().longitude);
                                     favourite.setLocationAddress(marker.getTitle());
 
-                                    if(previousLocation == null|| !previousLocation.isEmpty()){
+                                    if(previousLocation != null){
                                         db.updateContact(favourite,previousLocation);
                                         previousLocation = null;
 
                                         Toast.makeText(MapsActivity.this, "Location has been updated succesfully.", Toast.LENGTH_LONG).show();
+                                        isUpdateClicked = true;
                                     }else{
                                         db.insertContact(favourite);
+
                                     }
 
                                 }
@@ -614,7 +629,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     return;
                 }
 
-                marker.setTitle(list.get(0).getPremises() +" "+list.get(0).getLocality()+""+ list.get(0).getAdminArea()+""+list.get(0).getFeatureName()+" " +list.get(0).getSubLocality() +" "+list.get(0).getCountryName());
+                marker.setTitle(list.get(0).getPremises() +" "+list.get(0).getLocality()+" "+ list.get(0).getAdminArea()+" "+list.get(0).getFeatureName()+" " +list.get(0).getSubLocality() +" "+list.get(0).getCountryName());
                 end_latitude = marker.getPosition().latitude;
                 end_longitude =  marker.getPosition().longitude;
 
